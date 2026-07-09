@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Dental S&M - Ruleta Digital</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #fcd5ce 0%, #d8e2dc 50%, #98c1d9 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+        .wheel-wrapper {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            max-width: 90vw;
+            max-height: 90vw;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .pointer {
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 35px;
+            background-color: #584a33;
+            border-radius: 50% 10px 10px 50%;
+            z-index: 10;
+            box-shadow: -2px 3px 10px rgba(0,0,0,0.2);
+        }
+        .pointer::after {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+        .content {
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+            color: #1a0933;
+        }
+        .content h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+        .content p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #2b1b4d;
+            margin-bottom: 30px;
+        }
+        .spin-btn {
+            background-color: #211138;
+            color: #ffffff;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 15px rgba(33,17,56,0.3);
+        }
+        .spin-btn:hover {
+            background-color: #311b52;
+        }
+        .spin-btn:active {
+            transform: scale(0.98);
+        }
+        .spin-btn:disabled {
+            background-color: #777;
+            cursor: not-allowed;
+        }
+        
+        /* Modal para el Premio */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 100;
+        }
+        .modal {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        .modal h2 {
+            margin-top: 0;
+            color: #211138;
+        }
+        .modal p {
+            font-size: 1.1rem;
+            color: #444;
+            margin: 15px 0 25px 0;
+        }
+        .modal button {
+            background-color: #584a33;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="wheel-wrapper">
+            <canvas id="wheel" width="500" height="500"></canvas>
+            <div class="pointer"></div>
+        </div>
+        
+        <div class="content">
+            <h1>Clínica Dental S&M</h1>
+            <p>¡Gira nuestra Ruleta Digital y descubre sorpresas increíbles! Una experiencia divertida y sencilla que te acerca más a tu mejor sonrisa. ¿Listo para probar suerte? ¡Haz clic y gana!</p>
+            <button class="spin-btn" id="spinBtn">¡Girar!</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2 id="modalTitle">¡Enhorabuena!</h2>
+            <p id="modalResult"></p>
+            <button onclick="closeModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalResult = document.getElementById('modalResult');
+        const modalTitle = document.getElementById('modalTitle');
+
+        // PROBABILIDADES FINALES AJUSTADAS (Implante gratis en 0)
+        const options = [
+            { text: "Limpieza profunda", prob: 0.2500, color: "#cbbf86" },
+            { text: "Valoración + TAC", prob: 0.2500, color: "#ffffff" },
+            { text: "¡Gracias, juega más!", prob: 0.2080, color: "#f3ebd1" }, // Redondeado sutilmente para sumar 1 exacto
+            { text: "15% desc. Ortodoncia", prob: 0.1500, color: "#cbbf86" },
+            { text: "Brackets 50% desc.", prob: 0.1000, color: "#8a5f17" },
+            { text: "15% desc. Tratamientos", prob: 0.0300, color: "#ffffff" },
+            { text: "15% desc. Implantes", prob: 0.0100, color: "#f3ebd1" },
+            { text: "Blanqueamiento Elite", prob: 0.0020, color: "#cbbf86" },
+            { text: "Implante gratis", prob: 0.0000, color: "#8a5f17" } // ACTUALIZADO A 0%
+        ];
+
+        const numSegments = options.length;
+        const segmentAngle = (2 * Math.PI) / numSegments;
+        let currentRotation = 0;
+        let isSpinning = false;
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const radius = canvas.width / 2;
+            ctx.save();
+            ctx.translate(radius, radius);
+            ctx.rotate(currentRotation);
+
+            for (let i = 0; i < numSegments; i++) {
+                const angle = i * segmentAngle;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius - 10, angle, angle + segmentAngle);
+                ctx.closePath();
+                ctx.fillStyle = options[i].color;
+                ctx.fill();
+                
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.rotate(angle);
+                ctx.beginPath();
+                ctx.arc(radius - 10, 0, 4, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                ctx.restore();
+
+                ctx.save();
+                ctx.rotate(angle + segmentAngle / 2);
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+                
+                ctx.fillStyle = (options[i].color === "#8a5f17") ? "#ffffff" : "#443822";
+                ctx.font = "bold 13px Arial";
+                
+                ctx.fillText(options[i].text, radius - 35, 0);
+                ctx.restore();
+            }
+
+            // Círculo central corporativo
+            ctx.beginPath();
+            ctx.arc(0, 0, 55, 0, 2 * Math.PI);
+            ctx.fillStyle = "#584a33";
+            ctx.fill();
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 12px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("S&M", 0, -5);
+            ctx.font = "7px Arial";
+            ctx.fillText("SANTANA & MARTÍN", 0, 10);
+
+            ctx.restore();
+        }
+
+        function getWinningIndex() {
+            const rand = Math.random();
+            let cumulativeProb = 0;
+            for (let i = 0; i < options.length; i++) {
+                cumulativeProb += options[i].prob;
+                if (rand <= cumulativeProb) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+
+            const winningIndex = getWinningIndex();
+            
+            const targetSegmentAngle = winningIndex * segmentAngle + (segmentAngle / 2);
+            const baseTargetAngle = (2 * Math.PI) - targetSegmentAngle;
+            
+            const totalSpins = 6 + Math.floor(Math.random() * 3);
+            const targetRotation = currentRotation + (totalSpins * 2 * Math.PI) + (baseTargetAngle - (currentRotation % (2 * Math.PI)));
+
+            const startRotation = currentRotation;
+            const duration = 5000;
+            const startTime = performance.now();
+
+            function animate(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+                
+                currentRotation = startRotation + (targetRotation - startRotation) * easeOutCubic;
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    showResult(options[winningIndex].text);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function showResult(prize) {
+            if (prize === "¡Gracias, juega más!") {
+                modalTitle.innerText = "¡Casi lo tienes!";
+                modalResult.innerText = "Gracias por participar. ¡Prueba otra vez en tu próxima visita!";
+            } else {
+                modalTitle.innerText = "¡Enhorabuena!";
+                modalResult.innerText = `Has ganado: ${prize}. Muestra esta pantalla en recepción para validarlo.`;
+            }
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        spinBtn.addEventListener('click', spin);
+        drawWheel();
+    </script>
+</body>
+</html>
