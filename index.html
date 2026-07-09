@@ -188,17 +188,17 @@
         const modalResult = document.getElementById('modalResult');
         const modalTitle = document.getElementById('modalTitle');
 
-        // PROBABILIDADES FINALES AJUSTADAS (Implante gratis en 0)
+        // CONFIGURACIÓN OPTIMIZADA - PROTECCIÓN DE AGENDA Y COSTES
         const options = [
-            { text: "Limpieza profunda", prob: 0.2500, color: "#cbbf86" },
-            { text: "Valoración + TAC", prob: 0.2500, color: "#ffffff" },
-            { text: "¡Gracias, juega más!", prob: 0.2080, color: "#f3ebd1" }, // Redondeado sutilmente para sumar 1 exacto
-            { text: "15% desc. Ortodoncia", prob: 0.1500, color: "#cbbf86" },
-            { text: "Brackets 50% desc.", prob: 0.1000, color: "#8a5f17" },
-            { text: "15% desc. Tratamientos", prob: 0.0300, color: "#ffffff" },
-            { text: "15% desc. Implantes", prob: 0.0100, color: "#f3ebd1" },
-            { text: "Blanqueamiento Elite", prob: 0.0020, color: "#cbbf86" },
-            { text: "Implante gratis", prob: 0.0000, color: "#8a5f17" } // ACTUALIZADO A 0%
+            { text: "Limpieza profunda", prob: 0.1000, color: "#cbbf86" }, // Bajada al 10%
+            { text: "Valoración + TAC", prob: 0.3500, color: "#ffffff" },  // Subida al 35%
+            { text: "¡Gracias, juega más!", prob: 0.4500, color: "#f3ebd1" }, // Subida al 45% (Colchón principal)
+            { text: "15% desc. Ortodoncia", prob: 0.0600, color: "#cbbf86" },
+            { text: "Brackets 50% desc.", prob: 0.0300, color: "#8a5f17" },
+            { text: "15% desc. Tratamientos", prob: 0.0080, color: "#ffffff" },
+            { text: "15% desc. Implantes", prob: 0.0010, color: "#f3ebd1" },
+            { text: "Blanqueamiento Elite", prob: 0.0010, color: "#cbbf86" },
+            { text: "Implante gratis", prob: 0.0000, color: "#8a5f17" }   // Bloqueado en 0%
         ];
 
         const numSegments = options.length;
@@ -247,7 +247,6 @@
                 ctx.restore();
             }
 
-            // Círculo central corporativo
             ctx.beginPath();
             ctx.arc(0, 0, 55, 0, 2 * Math.PI);
             ctx.fillStyle = "#584a33";
