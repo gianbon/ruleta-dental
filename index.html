@@ -168,7 +168,8 @@
         <div class="content">
             <h1>Clínica Dental S&M</h1>
             <p>¡Gira nuestra Ruleta Digital y descubre sorpresas increíbles! Una experiencia divertida y sencilla que te acerca más a tu mejor sonrisa. ¿Listo para probar suerte? ¡Haz clic y gana!</p>
-            <button class="spin-btn" id="spinBtn">¡Girar!</button>
+            <!-- AQUÍ ESTÁ EL CHIVATO VISUAL PARA LA CACHÉ -->
+            <button class="spin-btn" id="spinBtn">¡Girar Ruleta!</button>
         </div>
     </div>
 
@@ -188,7 +189,6 @@
         const modalResult = document.getElementById('modalResult');
         const modalTitle = document.getElementById('modalTitle');
 
-        // Mapeo exacto de gajos (Visuales)
         const options = [
             { text: "Limpieza profunda", color: "#cbbf86" },
             { text: "Valoración + TAC", color: "#ffffff" },
@@ -201,8 +201,7 @@
             { text: "Implante gratis", color: "#8a5f17" }
         ];
 
-        // NUEVO SISTEMA SEGURO BASADO EN PARTICIONES ENTERAS (Total: 10.000 tickets)
-        // Esto blinda las probabilidades reales sin importar el orden visual del gajo
+        // SISTEMA SEGURO BLINDADO (10.000 tickets exactos)
         const probabilityMap = [
             { index: 2, weight: 4500 }, // ¡Gracias, juega más! (45%)
             { index: 1, weight: 3500 }, // Valoración + TAC (35%)
@@ -212,7 +211,7 @@
             { index: 5, weight: 80 },   // 15% desc. Tratamientos (0.8%)
             { index: 6, weight: 10 },   // 15% desc. Implantes (0.1%)
             { index: 7, weight: 10 },   // Blanqueamiento Elite (0.1%)
-            { index: 8, weight: 0 }     // Implante gratis (0% - ELIMINADO POR COMPLETO)
+            { index: 8, weight: 0 }     // Implante gratis (0%)
         ];
 
         const numSegments = options.length;
@@ -280,10 +279,9 @@
             ctx.restore();
         }
 
-        // Sistema de selección matemáticamente estricto
         function getWinningIndex() {
             const totalWeight = 10000;
-            const rand = Math.floor(Math.random() * totalWeight); // Número entero del 0 al 9999
+            const rand = Math.floor(Math.random() * totalWeight); 
             
             let cumulativeWeight = 0;
             for (let i = 0; i < probabilityMap.length; i++) {
@@ -292,7 +290,7 @@
                     return probabilityMap[i].index;
                 }
             }
-            return 2; // Por seguridad, "¡Gracias, juega más!"
+            return 2; 
         }
 
         function spin() {
@@ -302,7 +300,6 @@
 
             const winningIndex = getWinningIndex();
             
-            // Forzar que apunte físicamente al centro del gajo ganador en la parte derecha del puntero
             const targetSegmentAngle = winningIndex * segmentAngle + (segmentAngle / 2);
             const baseTargetAngle = (2 * Math.PI) - targetSegmentAngle;
             
