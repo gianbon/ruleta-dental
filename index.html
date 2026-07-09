@@ -168,7 +168,6 @@
         <div class="content">
             <h1>Clínica Dental S&M</h1>
             <p>¡Gira nuestra Ruleta Digital y descubre sorpresas increíbles! Una experiencia divertida y sencilla que te acerca más a tu mejor sonrisa. ¿Listo para probar suerte? ¡Haz clic y gana!</p>
-            <!-- AQUÍ ESTÁ EL CHIVATO VISUAL PARA LA CACHÉ -->
             <button class="spin-btn" id="spinBtn">¡Girar Ruleta!</button>
         </div>
     </div>
@@ -201,15 +200,15 @@
             { text: "Implante gratis", color: "#8a5f17" }
         ];
 
-        // SISTEMA SEGURO BLINDADO (10.000 tickets exactos)
+        // NUEVO SISTEMA (Enfoque de Captación/Agendamiento)
         const probabilityMap = [
-            { index: 2, weight: 4500 }, // ¡Gracias, juega más! (45%)
-            { index: 1, weight: 3500 }, // Valoración + TAC (35%)
-            { index: 0, weight: 1000 }, // Limpieza profunda (10%)
-            { index: 3, weight: 600 },  // 15% desc. Ortodoncia (6%)
-            { index: 4, weight: 300 },  // Brackets 50% desc. (3%)
-            { index: 5, weight: 80 },   // 15% desc. Tratamientos (0.8%)
-            { index: 6, weight: 10 },   // 15% desc. Implantes (0.1%)
+            { index: 1, weight: 4000 }, // Valoración + TAC (40%) - El premio mayoritario
+            { index: 0, weight: 2000 }, // Limpieza profunda (20% - 1 de cada 5 veces)
+            { index: 3, weight: 1500 }, // 15% desc. Ortodoncia (15%)
+            { index: 4, weight: 1000 }, // Brackets 50% desc. (10%)
+            { index: 2, weight: 1000 }, // ¡Gracias, juega más! (10%) - Muy limitado
+            { index: 5, weight: 390 },  // 15% desc. Tratamientos (3.9%)
+            { index: 6, weight: 100 },  // 15% desc. Implantes (1%)
             { index: 7, weight: 10 },   // Blanqueamiento Elite (0.1%)
             { index: 8, weight: 0 }     // Implante gratis (0%)
         ];
@@ -290,7 +289,7 @@
                     return probabilityMap[i].index;
                 }
             }
-            return 2; 
+            return 1; // Fallback de seguridad: Valoración + TAC
         }
 
         function spin() {
